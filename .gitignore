@@ -1,2 +1,4 @@
-/archive
+/orl_faces
 .ipynb_checkpoints/
+.idea/
+__pycache__/
