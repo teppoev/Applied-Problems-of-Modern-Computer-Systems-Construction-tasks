@@ -536,14 +536,14 @@ def main():
                 arg2 = int(args[2])
                 if arg1 < 1 or arg1 > images[0][0][0].shape[0] // 2 or arg2 < 1 or arg2 > 2 * arg1:
                     raise ValueError("Wrong method argument")
-                chosen_methods = [{"name": method["name"], "args": [arg1, arg2]}]
+                chosen_methods = [{"name": method["name"], "args": [arg1, arg2], "fun": method["fun"]}]
             elif method["name"] == "Scale":
                 arg1 = args[1]
                 if arg1 < 0.125 or arg1 > 1.0:
                     raise ValueError("Wrong method argument")
                 arg1 = int(images[0][0][0].shape[0] * args[1])
                 arg2 = int(images[0][0][0].shape[1] * args[1])
-                chosen_methods = [{"name": method["name"], "args": [arg1, arg2]}]
+                chosen_methods = [{"name": method["name"], "args": [arg1, arg2], "fun": method["fun"]}]
             elif method["name"] == "Voting":
                 m_indices = np.array([int(x) for x in str(int(args[1]))])
                 if np.any(m_indices < 1) or np.any(m_indices > len(methods)) or len(set(m_indices)) != len(m_indices):

@@ -114,28 +114,28 @@ def gradient(image, args, canvas_width=None, canvas_height=None, need_to_display
 def get_args_scale(progress, width, height):
     min_arg = 0.125
     max_arg = 0.5
-    scale_arg = min_arg + progress * (max_arg - min_arg) if progress is not None else 0.35
+    scale_arg = min_arg + progress * (max_arg - min_arg) if progress is not None else methods[0]["args"][0]["default"]
     return int(height * scale_arg), int(width * scale_arg)
 
 
 def get_args_hist(progress):
     min_arg = 8
     max_arg = 32
-    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 20
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else methods[1]["args"][0]["default"]
     return arg, None
 
 
 def get_args_dct(progress):
     min_arg = 4
     max_arg = 24
-    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 10
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else methods[3]["args"][0]["default"]
     return arg, None
 
 
 def get_args_dft(progress):
     min_arg = 4
     max_arg = 24
-    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 14
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else methods[4]["args"][0]["default"]
     return arg, None
 
 
@@ -170,11 +170,11 @@ def get_args_gradient(progress, steps):
 methods = [
     {
         "name": "Scale",
-        "args": [{"name": "Scale coef.", "min": 0.125, "max": 1.0, "default": 0.35}], "get_args": get_args_scale,
+        "args": [{"name": "Scale coef.", "min": 0.125, "max": 1.0, "default": 0.125}], "get_args": get_args_scale,
         "fun": scale
     }, {
         "name": "Hist",
-        "args": [{"name": "BINs number", "min": 8, "max": 64, "default": 32}], "get_args": get_args_hist,
+        "args": [{"name": "BINs number", "min": 8, "max": 64, "default": 20}], "get_args": get_args_hist,
         "fun": hist
     }, {
         "name": "Gradient",
