@@ -13,24 +13,28 @@ def main_menu(window, method_names):
         "so it provides the best result possible."
     ))
     buttons = [tk.Button(frm_buttons, text=method_names[i]) for i in range(len(method_names))]
+    button_voting = tk.Button(frm_buttons, text="Voting")
 
     central_area.columnconfigure(0, weight=1)
     central_area.rowconfigure(0, weight=1)
     frm_buttons.rowconfigure(0, weight=1)
     for i in range(len(method_names)):
         frm_buttons.columnconfigure(i, weight=1)
+    frm_buttons.columnconfigure(len(buttons), weight=1)
 
     central_area.grid(row=0, column=0, sticky="nsew")
     frm_buttons.grid(row=1, column=0, sticky="nsew")
     label.grid(row=0, column=0, sticky="nsew")
     for i in range(len(method_names)):
         buttons[i].grid(row=0, column=i, sticky="nsew", padx=5, pady=5)
+    button_voting.grid(row=0,column=len(buttons), sticky="nsew", padx=5, pady=5)
 
     return {
         "central_area": central_area,
         "frm_buttons": frm_buttons,
         "label": label,
-        "buttons": buttons
+        "buttons": buttons,
+        "button_voting": button_voting
     }
 
 
@@ -198,3 +202,24 @@ def cross_validation_gui(window):
         "btn_back_p": btn_back_p,
         "btn_back_cv": btn_back_cv
     }
+
+
+def clear_canvases_cv(cvg, up_label_text):
+    cvg["images"]["left_images"] = None
+    cvg["images"]["right_images"] = None
+    cvg["images"]["image00"] = None
+    cvg["images"]["image01"] = None
+    cvg["images"]["image02"] = None
+    cvg["images"]["image10"] = None
+    cvg["images"]["image11"] = None
+    cvg["images"]["image12"] = None
+    cvg["images"]["image00_cv2data"] = None
+    cvg["canvases"]["left_canvas"].delete("all")
+    cvg["canvases"]["right_canvas"].delete("all")
+    cvg["canvases"]["canvas00"].delete("all")
+    cvg["canvases"]["canvas01"].delete("all")
+    cvg["canvases"]["canvas02"].delete("all")
+    cvg["canvases"]["canvas10"].delete("all")
+    cvg["canvases"]["canvas11"].delete("all")
+    cvg["canvases"]["canvas12"].delete("all")
+    cvg["upper_label"].config(text=up_label_text)

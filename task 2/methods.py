@@ -18,7 +18,7 @@ def resize_image(width, height, canvas_width, canvas_height):
 
 def get_image_by_plot(x, y, is_hist=False):
     if is_hist:
-        plt.bar(x, y, align="center", width=160/len(x))
+        plt.bar(x, y, align="center", width=160 / len(x))
         plt.xlim([0, 255])
         plt.title('Intensity histogram features')
         plt.xlabel('Intensity')
@@ -72,28 +72,24 @@ def get_zigzag(arr):
     return zigzag
 
 
-def dft(image, args, canvas_width=None, canvas_height=None, need_to_display=False):
-    p = args[0]
+def spectre_functions(p, f, need_to_display, canvas_width, canvas_height):
     displayed_image = None
-    f = np.abs(np.fft.fft2(image))
     if need_to_display:
         min_val = np.min(f)
         max_val = np.max(f)
-        cv2_img = np.ubyte(255 * (f - min_val)/(max_val - min_val))[:p, :p]
+        cv2_img = np.ubyte(255 * (f - min_val) / (max_val - min_val))[:p, :p]
         displayed_image = get_image_to_display(cv2_img, canvas_width, canvas_height)
     return get_zigzag(f[:p, :p]), displayed_image
 
 
+def dft(image, args, canvas_width=None, canvas_height=None, need_to_display=False):
+    f = np.abs(np.fft.fft2(image))
+    return spectre_functions(args[0], f, need_to_display, canvas_width, canvas_height)
+
+
 def dct(image, args, canvas_width=None, canvas_height=None, need_to_display=False):
-    p = args[0]
-    displayed_image = None
     c = sc_dct(sc_dct(image, axis=1), axis=0)
-    if need_to_display:
-        min_val = np.min(c)
-        max_val = np.max(c)
-        cv2_img = np.ubyte(255 * (c - min_val)/(max_val - min_val))[:p, :p]
-        displayed_image = get_image_to_display(cv2_img, canvas_width, canvas_height)
-    return get_zigzag(c[:p, :p]), displayed_image
+    return spectre_functions(args[0], c, need_to_display, canvas_width, canvas_height)
 
 
 def gradient(image, args, canvas_width=None, canvas_height=None, need_to_display=False):
@@ -113,3 +109,116 @@ def gradient(image, args, canvas_width=None, canvas_height=None, need_to_display
         img = img.resize(resize_image(img.size[0], img.size[1], canvas_width, canvas_height))
         displayed_image = img
     return result, displayed_image
+
+
+def get_args_scale(progress, width, height):
+    min_arg = 0.125
+    max_arg = 0.5
+    scale_arg = min_arg + progress * (max_arg - min_arg) if progress is not None else 0.35
+    return int(height * scale_arg), int(width * scale_arg)
+
+
+def get_args_hist(progress):
+    min_arg = 8
+    max_arg = 32
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 20
+    return arg, None
+
+
+def get_args_dct(progress):
+    min_arg = 4
+    max_arg = 24
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 10
+    return arg, None
+
+
+def get_args_dft(progress):
+    min_arg = 4
+    max_arg = 24
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 14
+    return arg, None
+
+
+def get_args_gradient(progress, steps):
+    min_arg = 1
+    max_arg = steps if progress is not None else 1
+    arg = int(min_arg + progress * (max_arg - min_arg)) if progress is not None else 5  # (3, 2)
+
+    match arg:
+        case 1:
+            arg1 = 1
+            arg2 = 1
+        case 2:
+            arg1 = 2
+            arg2 = 1
+        case 3:
+            arg1 = 2
+            arg2 = 2
+        case _:
+            arg1 = ((arg - 1) // 3) + 2
+            arg2 = None
+            match (arg - 1) % 3:
+                case 0:
+                    arg2 = arg1 - 2
+                case 1:
+                    arg2 = arg1 - 1
+                case 2:
+                    arg2 = arg1
+    return arg1, arg2
+
+
+methods = [
+    {
+        "name": "Scale",
+        "args": [{"name": "Scale coef.", "min": 0.125, "max": 1.0, "default": 0.35}], "get_args": get_args_scale,
+        "fun": scale
+    }, {
+        "name": "Hist",
+        "args": [{"name": "BINs number", "min": 8, "max": 64, "default": 32}], "get_args": get_args_hist,
+        "fun": hist
+    }, {
+        "name": "Gradient",
+        "args": [{"name": "Window size", "min": 1, "max": 8, "default": 3},
+                 {"name": "Step", "min": 1, "max": 8, "default": 2}], "get_args": get_args_gradient,
+        "fun": gradient
+    }, {
+        "name": "DCT",
+        "args": [{"name": "Transform length", "min": 4, "max": 24, "default": 10}], "get_args": get_args_dct,
+        "fun": dct
+    }, {
+        "name": "DFT",
+        "args": [{"name": "Transform length", "min": 4, "max": 24, "default": 14}], "get_args": get_args_dft,
+        "fun": dft
+    }
+]
+
+
+def get_args(method_name, progress=None, width=None, height=None, steps=None):
+    match method_name:
+        case "Scale":
+            return get_args_scale(progress, width, height)
+        case "Hist":
+            return get_args_hist(progress)
+        case "DCT":
+            return get_args_dct(progress)
+        case "DFT":
+            return get_args_dft(progress)
+        case "Gradient":
+            return get_args_gradient(progress, steps)
+
+
+def get_args_for_print(method_name, args):
+    if len(args) != 2:
+        raise ValueError("Length of args list which was sent to print is not equal to 2 as it should be")
+    arg1, arg2 = args
+    match method_name:
+        case "Scale":
+            return f"{arg1}x{arg2}"
+        case "Hist":
+            return f"{arg1} BINs"
+        case "DCT":
+            return f"{arg1}x{arg1}"
+        case "DFT":
+            return f"{arg1}x{arg1}"
+        case "Gradient":
+            return f"W={arg1}; S={arg2}"
