@@ -21,7 +21,7 @@ from methods import get_image_by_plot
 
 images_dir_names = ["images"]
 stop_thread = False
-time_to_sleep = 0
+time_to_sleep = 3
 
 
 def get_images():

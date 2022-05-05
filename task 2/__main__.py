@@ -19,7 +19,7 @@ from methods import methods, resize_image, get_args, get_args_for_print
 
 images_dir_names = ["default", "high cloaked", "with mask"]
 stop_thread = False
-time_to_sleep = 5
+time_to_sleep = 1
 
 
 def get_images():
@@ -230,7 +230,7 @@ def main():
 
         return data, args
 
-    def cv_computing_thread_fun_voting(chosen_methods, up_label_text, number_of_combinations=10):
+    def cv_computing_thread_fun_voting(chosen_methods, up_label_text, number_of_combinations=2):
         training_images_dataset = images[0]
         number_of_images_in_one_group = len(training_images_dataset[0])
         number_of_groups = len(training_images_dataset)
